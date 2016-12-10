@@ -16,7 +16,7 @@ func main() {
 	timeout := make(chan bool, 1)
 
 	go func() {
-		time.Sleep(5 * time.Second)
+		time.Sleep(1 * time.Second)
 		timeout <- true
 	}()
 
@@ -40,6 +40,7 @@ func processURL(urlProcessor chan string, timeout chan bool, done chan bool) {
 				go exploreURL(url, urlProcessor)
 			}
 		case <-timeout:
+			fmt.Printf("Explored %d pages\n", len(visited))
 			done <- true
 		}
 	}
