@@ -13,22 +13,15 @@ import (
 func main() {
 	urlProcessor := make(chan string)
 	done := make(chan bool)
-	timeout := make(chan bool, 1)
 
-	go func() {
-		time.Sleep(1 * time.Second)
-		timeout <- true
-	}()
-
-	go processURL(urlProcessor, timeout, done)
-
+	go processURL(urlProcessor, done)
 	urlProcessor <- "https://jeremywho.com"
 
 	<-done
 	fmt.Println("Done")
 }
 
-func processURL(urlProcessor chan string, timeout chan bool, done chan bool) {
+func processURL(urlProcessor chan string, done chan bool) {
 	visited := make(map[string]bool)
 	for {
 		select {
@@ -39,7 +32,7 @@ func processURL(urlProcessor chan string, timeout chan bool, done chan bool) {
 				visited[url] = true
 				go exploreURL(url, urlProcessor)
 			}
-		case <-timeout:
+		case <-time.After(1 * time.Second):
 			fmt.Printf("Explored %d pages\n", len(visited))
 			done <- true
 		}
